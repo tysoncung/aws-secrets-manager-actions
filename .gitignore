@@ -99,3 +99,7 @@ package-lock.json
 .tool-versions
 
 dist
+
+aws.secrets
+sample.env
+.actrc

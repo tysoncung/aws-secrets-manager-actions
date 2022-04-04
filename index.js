@@ -4,6 +4,8 @@ const fs = require('fs')
 
 const outputPath = core.getInput('OUTPUT_PATH')
 const secretName = core.getInput('SECRET_NAME')
+let prefix = core.getInput('PREFIX')
+
 
 const secretsManager = new aws.SecretsManager({
   accessKeyId: core.getInput('AWS_ACCESS_KEY_ID'),
@@ -24,6 +26,10 @@ getSecretValue(secretsManager, secretName).then(resp => {
     return
   }
 
+  if (prefix != null) {
+    prefix = prefix + "_"
+  }
+
   try {
     const parsedSecret = JSON.parse(secretString)
     Object.entries(parsedSecret).forEach(([key, value]) => {
@@ -31,7 +37,7 @@ getSecretValue(secretsManager, secretName).then(resp => {
       core.exportVariable(key, value)
     })
     if (outputPath) {
-      const secretsAsEnv = Object.entries(parsedSecret).map(([key, value]) => `${key}=${value}`).join('\n')
+      const secretsAsEnv = Object.entries(parsedSecret).map(([key, value]) => `${prefix}${key}=${value}`).join('\n')
       fs.writeFileSync(outputPath, secretsAsEnv)
     }
   } catch (e) {
